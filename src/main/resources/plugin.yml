@@ -1,0 +1,6 @@
+name: CrossplayNav
+version: '1.0.0'
+main: fun.nizhal.crossplay.CrossplayNav
+api-version: '26.1'
+description: Crossplay command suggestions framework for Java and Bedrock players
+authors: [ nizhal ]

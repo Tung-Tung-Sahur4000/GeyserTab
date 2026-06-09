@@ -1,0 +1,22 @@
+# CrossplayNav configuration
+
+# How to present dynamic value lists to players who run a command with no argument.
+# auto  - Bedrock players get a native form, Java players get a chat list
+# chat  - everyone gets a chat list (no Floodgate required)
+# form  - Bedrock-only form (falls back to chat for Java)
+fallback-ui: auto
+
+homes:
+  # Maximum homes per player. Set to -1 for unlimited.
+  max-homes: 5
+
+warps: {}
+  # Warp entries are managed by /setwarp and /delwarp.
+  # Format (written automatically):
+  # spawn:
+  #   world: world
+  #   x: 0.5
+  #   y: 64.0
+  #   z: 0.5
+  #   yaw: 0.0
+  #   pitch: 0.0
