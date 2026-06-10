@@ -7,7 +7,9 @@ description: >
   plugin's dynamic commands (home, warp, kit, etc.) without plugin-specific code.
 authors:
   - GeyserTab
-soft-dependencies:
-  - name: floodgate
-    required: false
-    load: BEFORE
+dependencies:
+  server:
+    floodgate:
+      load: BEFORE
+      required: false
+      join-classpath: true
