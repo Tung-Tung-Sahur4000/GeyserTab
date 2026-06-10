@@ -1,7 +1,7 @@
-package fun.nizhal.crossplay.core.presenter;
+package io.geysertab.core.presenter;
 
-import fun.nizhal.crossplay.core.Presenter;
-import fun.nizhal.crossplay.core.SelectAction;
+import io.geysertab.core.Presenter;
+import io.geysertab.core.SelectAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * All Floodgate/Cumulus references are isolated in this class.
- * Only instantiate or call methods here after confirming hasFloodgate() == true.
+ * Only instantiate after confirming hasFloodgate() == true.
  */
 public final class BedrockFormPresenter implements Presenter {
 

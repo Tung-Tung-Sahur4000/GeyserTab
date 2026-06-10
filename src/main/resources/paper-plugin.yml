@@ -1,12 +1,12 @@
-name: CrossplayNav
+name: GeyserTab
 version: '1.0.0'
-main: fun.nizhal.crossplay.CrossplayNav
+main: io.geysertab.GeyserTab
 api-version: '26.1'
 description: >
   Crossplay command UI bridge — gives any plugin's dynamic commands
   tab-complete on Java and a native form popup on Bedrock.
 authors:
-  - nizhal
+  - GeyserTab
 soft-dependencies:
   - name: Essentials
     required: false

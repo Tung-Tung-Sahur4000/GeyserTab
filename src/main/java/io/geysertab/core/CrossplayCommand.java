@@ -1,4 +1,4 @@
-package fun.nizhal.crossplay.core;
+package io.geysertab.core;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -11,9 +11,6 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-/**
- * Fluent builder for a Tier-2 crossplay command (arbitrary dynamic string argument).
- */
 public final class CrossplayCommand {
 
     private final String name;

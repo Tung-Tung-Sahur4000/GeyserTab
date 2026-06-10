@@ -1,8 +1,8 @@
-package fun.nizhal.crossplay.core.presenter;
+package io.geysertab.core.presenter;
 
-import fun.nizhal.crossplay.core.Platform;
-import fun.nizhal.crossplay.core.Presenter;
-import fun.nizhal.crossplay.core.SelectAction;
+import io.geysertab.core.Platform;
+import io.geysertab.core.Presenter;
+import io.geysertab.core.SelectAction;
 import org.bukkit.entity.Player;
 
 import java.util.List;

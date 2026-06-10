@@ -1,4 +1,4 @@
-package fun.nizhal.crossplay.core;
+package io.geysertab.core;
 
 import org.bukkit.entity.Player;
 

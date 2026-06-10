@@ -1,4 +1,4 @@
-package fun.nizhal.crossplay.api;
+package io.geysertab.api;
 
 import org.bukkit.entity.Player;
 
@@ -18,7 +18,7 @@ import java.util.List;
  *       ServicePriority.Normal
  *   );
  *
- * CrossplayNav will automatically build a Brigadier command for it and show the
+ * GeyserTab will automatically build a Brigadier command for it and show the
  * right UI (form on Bedrock, clickable chat list on Java) when the player runs
  * the command with no argument.
  */
@@ -33,7 +33,6 @@ public interface CrossplayProvider {
     /**
      * Returns the list of valid values for this player.
      * Called on each tab-complete, so keep it fast.
-     * Per-player lists (homes, kits) and global lists (warps) both work here.
      */
     List<String> values(Player player);
 

@@ -1,6 +1,5 @@
-package fun.nizhal.crossplay.core;
+package io.geysertab.core;
 
-import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 
 import java.util.List;
