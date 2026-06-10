@@ -2,7 +2,9 @@ name: CrossplayNav
 version: '1.0.0'
 main: fun.nizhal.crossplay.CrossplayNav
 api-version: '26.1'
-description: Crossplay command UI bridge for Java and Bedrock players
+description: >
+  Crossplay command UI bridge — gives any plugin's dynamic commands
+  tab-complete on Java and a native form popup on Bedrock.
 authors:
   - nizhal
 soft-dependencies:

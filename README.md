@@ -1,80 +1,80 @@
 # CrossplayNav
 
-A reusable command suggestion framework for **Paper 26.1+** servers running **Geyser/Floodgate**, ensuring dynamic tab-complete arguments work correctly for both Java and Bedrock players.
+A UI bridge plugin for Paper 26.1+ that gives any plugin's dynamic commands proper crossplay support — tab-complete on Java, native form popup on Bedrock (Geyser/Floodgate). CrossplayNav owns zero data and zero command logic. It only adds the UI layer.
 
-## The problem
+## How it works
 
-Java players get live tab-complete suggestions per keystroke (Brigadier `ask_server`). Geyser builds the Bedrock command screen once at join, so dynamic argument lists show empty on Bedrock. CrossplayNav solves this with a two-tier system.
+CrossplayNav uses Bukkit's `ServicesManager` (the same mechanism Vault uses). Any plugin registers a `CrossplayProvider`, CrossplayNav picks it up and automatically wires:
+- **Java** → live tab-complete suggestions per keystroke
+- **Bedrock** → native form popup with tappable buttons (requires Floodgate), or clickable chat list as fallback
 
-## Two tiers
+```
+Plugin registers CrossplayProvider
+         ↓
+CrossplayNav reads values() at tab-complete time
+         ↓
+Java player: suggestion list inline
+Bedrock player: /command with no arg → form popup → tap → execute()
+```
 
-| Tier | Argument type | Example | Bedrock UX |
-|------|--------------|---------|------------|
-| 1 | Vanilla player selector | `/pay <player>` | Native tappable player list |
-| 2 | Arbitrary dynamic strings | `/warp <name>`, `/home <name>` | Form popup (Floodgate) or chat list |
+## For server admins
 
-## Commands
+Drop `CrossplayNav.jar` into `plugins/`. Supported plugins are detected automatically.
 
-| Command | Permission | Description |
-|---------|-----------|-------------|
-| `/warp [name]` | — | Teleport to a warp. No arg opens picker. |
-| `/setwarp <name>` | `crossplay.admin` | Create/overwrite a warp at your location. |
-| `/delwarp <name>` | `crossplay.admin` | Delete a warp. |
-| `/home [name]` | — | Teleport to your home. No arg opens picker. |
-| `/sethome <name>` | — | Set a home at your location. |
-| `/delhome <name>` | — | Delete a home. |
-| `/pay <player> <amount>` | — | Pay another player (stub economy). |
+| Plugin | Commands bridged | Notes |
+|--------|-----------------|-------|
+| EssentialsX | `/warp`, `/home` | Built-in adapter |
+| Any plugin | any command | Register a `CrossplayProvider` (see below) |
+
+For Bedrock form popup: also install **Floodgate**. Without it, CrossplayNav falls back to a clickable chat list for everyone.
+
+## For plugin developers
+
+Implement `CrossplayProvider` and register it. No Geyser/Floodgate dependency needed on your side.
+
+```java
+import fun.nizhal.crossplay.api.CrossplayProvider;
+
+// In your plugin's onEnable():
+getServer().getServicesManager().register(
+    CrossplayProvider.class,
+    new CrossplayProvider() {
+        public String commandName()  { return "kit"; }
+        public String displayTitle() { return "Kits"; }
+        public List<String> values(Player player) {
+            return kitPlugin.getKitNames(); // your data source
+        }
+        public void execute(Player player, String value) {
+            kitPlugin.giveKit(player, value); // your logic
+        }
+    },
+    this,
+    ServicePriority.Normal
+);
+```
+
+That's it. CrossplayNav handles the rest — no knowledge of Geyser or Bedrock required.
 
 ## Configuration (`config.yml`)
 
 ```yaml
-fallback-ui: auto   # auto | chat | form
-homes:
-  max-homes: 5      # -1 = unlimited
+fallback-ui: auto   # auto | chat
 ```
 
-## Building
+`auto` — Bedrock players get a form (requires Floodgate), Java players get a chat list.  
+`chat` — everyone gets a chat list, no Floodgate needed.
 
-Requires JDK 25 and Maven 3.
+## Requirements
+
+- Paper 26.1+, JDK 25
+- Geyser (optional — for Bedrock players to connect)
+- Floodgate (optional — for native form popup on Bedrock)
+- EssentialsX (optional — built-in adapter included)
+
+## Building
 
 ```bash
 mvn clean package
 ```
 
-The jar is written to `target/CrossplayNav.jar`. A GitHub Actions workflow builds it automatically on push to `main`.
-
-## Architecture
-
-```
-core/
-  SuggestionSource   – provides the live value list (per sender)
-  SelectAction       – called (on main thread) when a value is chosen
-  Presenter          – how the list is shown with no argument given
-  CrossplayCommand   – fluent builder wiring source + action + presenter
-  Platform           – Floodgate-guarded Bedrock detection
-  presenter/
-    ChatPresenter          – clickable chat list (no Floodgate needed)
-    BedrockFormPresenter   – Cumulus SimpleForm (all Floodgate code here)
-    AutoPresenter          – routes by platform
-examples/
-  warp/   WarpService + WarpCommands
-  home/   HomeService + HomeCommands
-  pay/    EconomyHook (stub) + PayCommand (Tier 1)
-```
-
-## Extending
-
-```java
-CrossplayCommand.literal("kit")
-    .title("Kits")
-    .source(src -> kitService.names())
-    .onSelect((player, name) -> kitService.give(player, name))
-    .presenter(autoPresenter)
-    .build();
-```
-
-## Requirements
-
-- Paper 26.1+, JDK 25
-- Geyser (optional, for Bedrock players)
-- Floodgate (optional, for native form UI on Bedrock)
+Jar: `target/CrossplayNav.jar`. GitHub Actions builds automatically on every push.

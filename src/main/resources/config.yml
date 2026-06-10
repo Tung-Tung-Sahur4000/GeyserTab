@@ -1,6 +1,6 @@
 # CrossplayNav configuration
 
-# How to present dynamic value lists to Bedrock players who run a command with no argument.
-# auto  - Bedrock players get a native form popup, Java players get a clickable chat list
+# How to present value lists to players who run a command with no argument.
+# auto  - Bedrock players get a native form popup; Java players get a clickable chat list
 # chat  - everyone gets a chat list (no Floodgate required)
 fallback-ui: auto
