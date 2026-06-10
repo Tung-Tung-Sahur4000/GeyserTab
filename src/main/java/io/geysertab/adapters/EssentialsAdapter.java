@@ -1,13 +1,13 @@
 package io.geysertab.adapters;
 
 import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.Warps;
 import io.geysertab.api.CrossplayProvider;
 import org.bukkit.Bukkit;
-import org.bukkit.ServicePriority;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.ServicePriority;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,8 +28,10 @@ public final class EssentialsAdapter {
             @Override public String commandName()  { return "warp"; }
             @Override public String displayTitle() { return "Warps"; }
             @Override public List<String> values(Player player) {
-                try { return new ArrayList<>(ess.getWarps().getWarpList()); }
-                catch (Exception e) { return List.of(); }
+                try {
+                    // getList() is from AsyncStorageObjectMap, the base class of Warps
+                    return ((Warps) ess.getWarps()).getList();
+                } catch (Exception e) { return List.of(); }
             }
             @Override public void execute(Player player, String value) {
                 player.performCommand("essentials:warp " + value);
