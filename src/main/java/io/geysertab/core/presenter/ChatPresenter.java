@@ -1,7 +1,6 @@
 package io.geysertab.core.presenter;
 
 import io.geysertab.core.Presenter;
-import io.geysertab.core.SelectAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -9,11 +8,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public final class ChatPresenter implements Presenter {
 
     @Override
-    public void present(Player player, String title, List<String> values, SelectAction action) {
+    public void present(Player player, String title, List<String> values, BiConsumer<Player, String> onSelect) {
         if (values.isEmpty()) {
             player.sendMessage(Component.text("No " + title.toLowerCase() + " available.", NamedTextColor.YELLOW));
             return;

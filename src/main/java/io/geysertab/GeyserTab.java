@@ -1,21 +1,16 @@
 package io.geysertab;
 
-import io.geysertab.adapters.EssentialsAdapter;
-import io.geysertab.api.CrossplayProvider;
-import io.geysertab.core.CrossplayCommand;
 import io.geysertab.core.Platform;
 import io.geysertab.core.Presenter;
 import io.geysertab.core.presenter.AutoPresenter;
 import io.geysertab.core.presenter.BedrockFormPresenter;
 import io.geysertab.core.presenter.ChatPresenter;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
+import io.geysertab.listener.CommandInterceptor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class GeyserTab extends JavaPlugin {
 
@@ -23,45 +18,32 @@ public final class GeyserTab extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
-        // Register built-in adapters for known plugins.
-        // Each adapter registers CrossplayProvider instances via ServicesManager.
-        if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {
-            EssentialsAdapter.register(this);
-        }
-
         Platform platform = new Platform();
         Presenter presenter = buildPresenter(platform);
 
-        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            Collection<RegisteredServiceProvider<CrossplayProvider>> registrations =
-                Bukkit.getServicesManager().getRegistrations(CrossplayProvider.class);
+        Map<String, String> commands = loadCommands();
+        if (commands.isEmpty()) {
+            getLogger().warning("No commands configured in config.yml — nothing to intercept.");
+        } else {
+            getLogger().info("Intercepting commands for Bedrock players: " + commands.keySet());
+        }
 
-            if (registrations.isEmpty()) {
-                getLogger().warning("No CrossplayProvider registrations found. " +
-                    "Install a supported plugin (e.g. EssentialsX) or register a provider manually.");
-                return;
-            }
-
-            for (RegisteredServiceProvider<CrossplayProvider> reg : registrations) {
-                CrossplayProvider provider = reg.getProvider();
-                event.registrar().register(
-                    CrossplayCommand.literal(provider.commandName())
-                        .title(provider.displayTitle())
-                        .source(src -> {
-                            Player player = src.getSender() instanceof Player p ? p : null;
-                            return player != null ? provider.values(player) : List.of();
-                        })
-                        .onSelect(provider::execute)
-                        .presenter(presenter)
-                        .build(),
-                    provider.displayTitle() + " (GeyserTab)"
-                );
-                getLogger().info("Registered crossplay command: /" + provider.commandName()
-                    + " from " + reg.getPlugin().getName());
-            }
-        });
+        getServer().getPluginManager().registerEvents(
+            new CommandInterceptor(platform, presenter, commands), this);
 
         getLogger().info("GeyserTab enabled. Floodgate: " + platform.hasFloodgate());
+    }
+
+    /** Reads the commands section from config.yml: commandName -> displayTitle */
+    private Map<String, String> loadCommands() {
+        Map<String, String> map = new HashMap<>();
+        ConfigurationSection section = getConfig().getConfigurationSection("commands");
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                map.put(key.toLowerCase(), section.getString(key, key));
+            }
+        }
+        return map;
     }
 
     private Presenter buildPresenter(Platform platform) {

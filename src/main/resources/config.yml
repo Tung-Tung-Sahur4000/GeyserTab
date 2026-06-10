@@ -1,6 +1,16 @@
-# CrossplayNav configuration
+# GeyserTab configuration
 
-# How to present value lists to players who run a command with no argument.
-# auto  - Bedrock players get a native form popup; Java players get a clickable chat list
-# chat  - everyone gets a chat list (no Floodgate required)
+# How to show the value list to Bedrock players who send a command with no argument.
+# auto  - native form popup (requires Floodgate); falls back to chat list without it
+# chat  - clickable chat list for everyone
 fallback-ui: auto
+
+# Commands to intercept for Bedrock players.
+# When a Bedrock player sends one of these with no argument, GeyserTab cancels it
+# and shows a form/list populated from the plugin that owns the command.
+# Works with any plugin — EssentialsX, SimpleHome, DarkLorad, CMI, or anything else.
+# Format:  commandName: "Display Title"
+commands:
+  home: Homes
+  warp: Warps
+  kit: Kits

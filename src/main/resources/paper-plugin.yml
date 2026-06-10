@@ -3,14 +3,11 @@ version: '1.0.0'
 main: io.geysertab.GeyserTab
 api-version: '26.1'
 description: >
-  Crossplay command UI bridge — gives any plugin's dynamic commands
-  tab-complete on Java and a native form popup on Bedrock.
+  Crossplay command UI bridge — shows a Bedrock form or chat list for any
+  plugin's dynamic commands (home, warp, kit, etc.) without plugin-specific code.
 authors:
   - GeyserTab
 soft-dependencies:
-  - name: Essentials
-    required: false
-    load: BEFORE
   - name: floodgate
     required: false
     load: BEFORE

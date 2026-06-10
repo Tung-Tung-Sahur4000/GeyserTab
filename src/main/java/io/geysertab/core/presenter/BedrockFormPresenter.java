@@ -1,7 +1,6 @@
 package io.geysertab.core.presenter;
 
 import io.geysertab.core.Presenter;
-import io.geysertab.core.SelectAction;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -11,6 +10,7 @@ import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * All Floodgate/Cumulus references are isolated in this class.
@@ -25,7 +25,7 @@ public final class BedrockFormPresenter implements Presenter {
     }
 
     @Override
-    public void present(Player player, String title, List<String> values, SelectAction action) {
+    public void present(Player player, String title, List<String> values, BiConsumer<Player, String> onSelect) {
         if (values.isEmpty()) {
             player.sendMessage(Component.text("No " + title.toLowerCase() + " available.", NamedTextColor.YELLOW));
             return;
@@ -40,7 +40,7 @@ public final class BedrockFormPresenter implements Presenter {
             int id = response.clickedButtonId();
             if (id < 0 || id >= values.size()) return;
             String chosen = values.get(id);
-            Bukkit.getScheduler().runTask(plugin, () -> action.run(player, chosen));
+            Bukkit.getScheduler().runTask(plugin, () -> onSelect.accept(player, chosen));
         });
 
         FloodgateApi.getInstance().sendForm(player.getUniqueId(), builder.build());
