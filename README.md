@@ -1,51 +1,86 @@
-# CrossplayNav
+# GeyserTab
 
-A UI bridge plugin for Paper 26.1+ that gives any plugin's dynamic commands proper crossplay support — tab-complete on Java, native form popup on Bedrock (Geyser/Floodgate). CrossplayNav owns zero data and zero command logic. It only adds the UI layer.
+A lightweight Paper plugin that gives Bedrock players a native form popup for commands like `/home`, `/warp`, `/kit` — no matter which plugin provides them.
+
+## The problem
+
+Java players get live tab-complete suggestions when typing `/home <Tab>`. Geyser builds Bedrock's command screen once at login and can't fetch dynamic suggestions per keystroke, so Bedrock players see an empty argument list and have no idea what names are available.
+
+GeyserTab fixes this by intercepting the no-argument case (`/home` with nothing after it) and showing a tappable form instead.
 
 ## How it works
 
-CrossplayNav uses Bukkit's `ServicesManager` (the same mechanism Vault uses). Any plugin registers a `CrossplayProvider`, CrossplayNav picks it up and automatically wires:
-- **Java** → live tab-complete suggestions per keystroke
-- **Bedrock** → native form popup with tappable buttons (requires Floodgate), or clickable chat list as fallback
-
 ```
-Plugin registers CrossplayProvider
-         ↓
-CrossplayNav reads values() at tab-complete time
-         ↓
-Java player: suggestion list inline
-Bedrock player: /command with no arg → form popup → tap → execute()
+Bedrock player sends /home  (no argument)
+        ↓
+GeyserTab intercepts the command
+        ↓
+Asks the server: "what are the tab completions for 'home '?"
+        ↓
+Whatever plugin handles /home responds with the player's home names
+        ↓
+GeyserTab shows a form popup with those names
+        ↓
+Player taps a name → /home bedroom runs → original plugin teleports them
 ```
 
-## For server admins
+GeyserTab never stores any data. It owns no command logic. It purely adds a UI layer on top of whatever is already installed.
 
-Drop `CrossplayNav.jar` into `plugins/`. Supported plugins are detected automatically.
+## Works with any plugin
 
-| Plugin | Commands bridged | Notes |
-|--------|-----------------|-------|
-| EssentialsX | `/warp`, `/home` | Built-in adapter |
-| Any plugin | any command | Register a `CrossplayProvider` (see below) |
+Because GeyserTab reads values from the server's existing tab completion — not from any plugin's internal API — it works with:
 
-For Bedrock form popup: also install **Floodgate**. Without it, CrossplayNav falls back to a clickable chat list for everyone.
+- **EssentialsX** — `/home`, `/warp`
+- **SimpleHome**, **DarkLorad Homes**, or any other home plugin
+- **CMI**, **MyCommand**, **CommandPanels**
+- Any kit plugin, shop plugin, or custom command — as long as it provides tab completions
+
+No adapter. No config per plugin. No recompile needed when you switch plugins.
+
+## Installation
+
+1. Drop `GeyserTab.jar` into your `plugins/` folder
+2. Also install **Geyser** (for Bedrock players to connect)
+3. Optionally install **Floodgate** for the native form popup UI (without it, a clickable chat list is shown instead)
+4. Start the server — `plugins/GeyserTab/config.yml` is created automatically
+5. Edit `config.yml` to list the commands you want intercepted (see below)
+
+## Configuration
+
+```yaml
+# plugins/GeyserTab/config.yml
+
+# How to show the value list to Bedrock players.
+# auto  - native form popup (requires Floodgate); falls back to chat list
+# chat  - clickable chat list for everyone
+fallback-ui: auto
+
+# Commands to intercept for Bedrock players.
+# When a Bedrock player sends one of these with no argument, GeyserTab
+# cancels it and shows a form/list using the existing plugin's tab completions.
+# Format:  commandName: "Display Title"
+commands:
+  home: Homes
+  warp: Warps
+  kit: Kits
+```
+
+Add or remove entries freely. Restart (or `/reload confirm`) to apply changes.
 
 ## For plugin developers
 
-Implement `CrossplayProvider` and register it. No Geyser/Floodgate dependency needed on your side.
+If your plugin's tab completions aren't accessible via the standard CommandMap (e.g. you use a custom async completion system), you can register a `CrossplayProvider` explicitly via Bukkit's `ServicesManager`. GeyserTab checks this before falling back to tab completion.
 
 ```java
-import fun.nizhal.crossplay.api.CrossplayProvider;
+import io.geysertab.api.CrossplayProvider;
 
 // In your plugin's onEnable():
 getServer().getServicesManager().register(
     CrossplayProvider.class,
     new CrossplayProvider() {
-        public String commandName()  { return "kit"; }
-        public String displayTitle() { return "Kits"; }
+        public String commandName() { return "mycommand"; }
         public List<String> values(Player player) {
-            return kitPlugin.getKitNames(); // your data source
-        }
-        public void execute(Player player, String value) {
-            kitPlugin.giveKit(player, value); // your logic
+            return myPlugin.getOptionsFor(player);
         }
     },
     this,
@@ -53,23 +88,16 @@ getServer().getServicesManager().register(
 );
 ```
 
-That's it. CrossplayNav handles the rest — no knowledge of Geyser or Bedrock required.
-
-## Configuration (`config.yml`)
-
-```yaml
-fallback-ui: auto   # auto | chat
-```
-
-`auto` — Bedrock players get a form (requires Floodgate), Java players get a chat list.  
-`chat` — everyone gets a chat list, no Floodgate needed.
+No Geyser or Floodgate dependency needed on your side.
 
 ## Requirements
 
-- Paper 26.1+, JDK 25
-- Geyser (optional — for Bedrock players to connect)
-- Floodgate (optional — for native form popup on Bedrock)
-- EssentialsX (optional — built-in adapter included)
+| Requirement | Notes |
+|---|---|
+| Paper 26.1+ | Required |
+| JDK 25 | Build only |
+| Geyser | Optional — needed for Bedrock players to connect |
+| Floodgate | Optional — needed for native form popup; falls back to chat list |
 
 ## Building
 
@@ -77,4 +105,6 @@ fallback-ui: auto   # auto | chat
 mvn clean package
 ```
 
-Jar: `target/CrossplayNav.jar`. GitHub Actions builds automatically on every push.
+Output: `target/GeyserTab.jar`
+
+GitHub Actions builds automatically on every branch push. Download the jar from the **Actions → Artifacts** section.
