@@ -1,7 +1,6 @@
-package fun.nizhal.crossplay.core.presenter;
+package io.geysertab.core.presenter;
 
-import fun.nizhal.crossplay.core.Presenter;
-import fun.nizhal.crossplay.core.SelectAction;
+import io.geysertab.core.Presenter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -11,10 +10,11 @@ import org.geysermc.cumulus.form.SimpleForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * All Floodgate/Cumulus references are isolated in this class.
- * Only instantiate or call methods here after confirming hasFloodgate() == true.
+ * Only instantiate after confirming hasFloodgate() == true.
  */
 public final class BedrockFormPresenter implements Presenter {
 
@@ -25,7 +25,7 @@ public final class BedrockFormPresenter implements Presenter {
     }
 
     @Override
-    public void present(Player player, String title, List<String> values, SelectAction action) {
+    public void present(Player player, String title, List<String> values, BiConsumer<Player, String> onSelect) {
         if (values.isEmpty()) {
             player.sendMessage(Component.text("No " + title.toLowerCase() + " available.", NamedTextColor.YELLOW));
             return;
@@ -40,7 +40,7 @@ public final class BedrockFormPresenter implements Presenter {
             int id = response.clickedButtonId();
             if (id < 0 || id >= values.size()) return;
             String chosen = values.get(id);
-            Bukkit.getScheduler().runTask(plugin, () -> action.run(player, chosen));
+            Bukkit.getScheduler().runTask(plugin, () -> onSelect.accept(player, chosen));
         });
 
         FloodgateApi.getInstance().sendForm(player.getUniqueId(), builder.build());

@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>fun.nizhal</groupId>
-  <artifactId>CrossplayNav</artifactId>
+  <groupId>io.geysertab</groupId>
+  <artifactId>GeyserTab</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
 
-  <name>CrossplayNav</name>
-  <description>Crossplay command suggestions framework for Paper + Geyser/Floodgate</description>
+  <name>GeyserTab</name>
+  <description>Crossplay command UI bridge for Paper + Geyser/Floodgate</description>
 
   <properties>
     <maven.compiler.release>25</maven.compiler.release>
@@ -48,7 +48,7 @@
   </dependencies>
 
   <build>
-    <finalName>CrossplayNav</finalName>
+    <finalName>GeyserTab</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

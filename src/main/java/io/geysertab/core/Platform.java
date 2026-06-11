@@ -1,4 +1,4 @@
-package fun.nizhal.crossplay.core;
+package io.geysertab.core;
 
 import org.bukkit.Bukkit;
 import org.geysermc.floodgate.api.FloodgateApi;
@@ -17,7 +17,6 @@ public final class Platform {
         return floodgate;
     }
 
-    /** Returns true if the UUID belongs to a Bedrock player via Floodgate. */
     public boolean isBedrock(UUID uuid) {
         if (!floodgate) return false;
         return FloodgateApi.getInstance().isFloodgatePlayer(uuid);

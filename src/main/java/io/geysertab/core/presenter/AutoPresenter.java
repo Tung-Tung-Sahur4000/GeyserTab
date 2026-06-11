@@ -1,11 +1,11 @@
-package fun.nizhal.crossplay.core.presenter;
+package io.geysertab.core.presenter;
 
-import fun.nizhal.crossplay.core.Platform;
-import fun.nizhal.crossplay.core.Presenter;
-import fun.nizhal.crossplay.core.SelectAction;
+import io.geysertab.core.Platform;
+import io.geysertab.core.Presenter;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * Routes to BedrockFormPresenter for Bedrock players, ChatPresenter for Java.
@@ -23,11 +23,11 @@ public final class AutoPresenter implements Presenter {
     }
 
     @Override
-    public void present(Player player, String title, List<String> values, SelectAction action) {
+    public void present(Player player, String title, List<String> values, BiConsumer<Player, String> onSelect) {
         if (platform.isBedrock(player.getUniqueId())) {
-            bedrockPresenter.present(player, title, values, action);
+            bedrockPresenter.present(player, title, values, onSelect);
         } else {
-            chatPresenter.present(player, title, values, action);
+            chatPresenter.present(player, title, values, onSelect);
         }
     }
 }
